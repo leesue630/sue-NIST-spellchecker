@@ -15,6 +15,7 @@ public class WordnetSpellChecker implements SpellChecker {
     private Dictionary dictionary;
 
     @Override
+    // No return. Causese exception if word is mispelled or not found
     public void check(String term) throws SpellCheckException {
         IndexWordSet indexWordSet;
         try {
