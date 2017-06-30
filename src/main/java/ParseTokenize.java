@@ -10,9 +10,7 @@ import gov.nist.surf2017.sue.config.SpellCheckerConfig;
 import gov.nist.surf2017.sue.spellchecker.SpellChecker;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
 import javax.xml.XMLConstants;
@@ -32,7 +30,7 @@ public class ParseTokenize {
     String fileName;
 
     public ParseTokenize() {
-        this.fileName = "C:\\Users\\lns16\\Documents\\students.xml";
+        this.fileName = "C:\\Users\\lns16\\Documents\\AARsample.xml";
     }
 
     public Document parse(String fileName) throws ParserConfigurationException, IOException, SAXException {
@@ -53,16 +51,25 @@ public class ParseTokenize {
 
     private List<String> getDescriptions(Document doc, XPath xPath) {
         List<String> list = new ArrayList<>();
-        String xPathStatement = "//xsd:annotation/xsd:documentation/text()";
-//        String xPathStatement = "//first_name/text()";
+        String xPathStatement = "//xsd:annotation/xsd:documentation";
+//        String xPathStatement = "//first_name";
 
         try {
             //create XPathExpression object
+            NodeList nodeList1 = doc.getElementsByTagName("xsd:documentation");
+            for (int i = 0; i < nodeList1.getLength() && nodeList1.getLength()!= 0; i++) {
+                String typeName = nodeList1.item(i).getParentNode().getParentNode().getAttributes().getNamedItem("type").getNodeValue();
+                String description = nodeList1.item(i).getFirstChild().getNodeValue();
+                System.out.println(typeName + ":");
+                System.out.println(description);
+                System.out.println("--------------------------------------");
+            }
             XPathExpression expression = xPath.compile(xPathStatement);
             //evaluate expression result on XML document
             NodeList nodeList = (NodeList) expression.evaluate(doc, XPathConstants.NODESET);
-            for (int i = 0; i < nodeList.getLength(); i++)
-                list.add(nodeList.item(i).getNodeValue());
+            for (int i = 0; i < nodeList.getLength(); i++) {
+                list.add(nodeList.item(i).getFirstChild().getNodeValue());
+            }
         } catch (XPathExpressionException e) {
             e.printStackTrace();
         }
