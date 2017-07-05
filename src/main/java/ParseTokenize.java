@@ -18,34 +18,34 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.*;
 import java.io.*;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
-
-import static java.nio.file.StandardOpenOption.APPEND;
-import static java.nio.file.StandardOpenOption.CREATE;
 
 public class ParseTokenize {
 
-    private static final String DOCUMENTNAME = "C:\\Users\\lns16\\Documents\\OAGi-Semantic-Refinement-and-Tooling\\data\\OAGIS_10_3_EnterpriseEdition\\OAGi-BPI-Platform\\org_openapplications_oagis\\10_3\\Model\\BODs\\AcknowledgeAllocateResource.xsd";
-    private static final String FILENAME = "./logfile.txt";
+    private static final String DIRECTORY = "C:\\Users\\lns16\\Documents\\OAGi-Semantic-Refinement-and-Tooling\\data\\OAGIS_10_3_EnterpriseEdition\\OAGi-BPI-Platform\\org_openapplications_oagis\\10_3\\Model\\BODs";
+    private static final String PLATFORM_DIRECTORY = "C:\\Users\\lns16\\Documents\\OAGi-Semantic-Refinement-and-Tooling\\data\\OAGIS_10_3_EnterpriseEdition\\OAGi-BPI-Platform\\org_openapplications_oagis\\10_3\\Model\\Platform\\2_3\\BODs";
+    private static final String TEST_DIRECTORY = "C:\\Users\\lns16\\Documents\\BODTest";
+    private static final String LOGFILE = "./logfile.txt";
     private XPathFactory xPathFactory;
     private XPath xPath;
-
+    private BufferedWriter bw = null;
+    private FileWriter fw = null;
+    private static final List<String> EXTENDED_STOP_WORDS = Arrays.asList(
+            "where", "from", "could", "which"
+    );
     public ParseTokenize() {
         this.xPathFactory = XPathFactory.newInstance();
         this.xPath = xPathFactory.newXPath();
     }
 
-    public Document parse(String fileName) throws ParserConfigurationException, IOException, SAXException {
+    public Document parse(File file) throws ParserConfigurationException, IOException, SAXException {
         DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
         documentBuilderFactory.setNamespaceAware(true);
         DocumentBuilder documentBuilder;
         Document doc = null;
         try {
             documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            doc = documentBuilder.parse(fileName);
+            doc = documentBuilder.parse(file);
         } catch (ParserConfigurationException | SAXException | IOException e) {
             e.printStackTrace();
         } finally {
@@ -58,7 +58,6 @@ public class ParseTokenize {
 //        String xPathStatement = "//first_name";
 
         HashMap<String, String> dictionary = null;
-        //create XPathExpression object
         dictionary = new HashMap<>();
         NodeList nodeList1 = doc.getElementsByTagName("xsd:documentation");
 
@@ -75,9 +74,9 @@ public class ParseTokenize {
         HashMap<String, List<String>> tokenizedDictionary = new HashMap<>();
         String[] tokens;
         for (Map.Entry<String, String> entry : dictionary.entrySet()) {
-            tokens = entry.getValue().split(" ");
+            tokens = entry.getValue().split(" |\\n");
             for (int i = 0; i < tokens.length; i++) {
-                tokens[i] = tokens[i].replaceAll(".", "").replaceAll(",", "").replaceAll("[()]", "").replaceAll("\n", "");
+                tokens[i] = tokens[i].replace(".", "").replace(",", "").replaceAll("[()]", "").replaceAll("\n", "");
             }
             tokenizedDictionary.put(entry.getKey(), normalize(removeStopWords(tokens)));
         }
@@ -88,7 +87,7 @@ public class ParseTokenize {
     private List<String> removeStopWords(String[] tokens) {
         List<String> revisedTokens = new ArrayList<>();
         for (String term : tokens) {
-            if (!isStopWord(term.toLowerCase())) {
+            if (!isStopWord(term) && !term.equals("")) {
                 revisedTokens.add(term);
             }
         }
@@ -97,7 +96,7 @@ public class ParseTokenize {
 
     // checks if term is a stop word
     private boolean isStopWord(String term) {
-        if (StandardAnalyzer.ENGLISH_STOP_WORDS_SET.contains(term)) {
+        if (StandardAnalyzer.ENGLISH_STOP_WORDS_SET.contains(term.toLowerCase()) || EXTENDED_STOP_WORDS.contains(term.toLowerCase())) {
             return true;
         }
         return false;
@@ -108,12 +107,19 @@ public class ParseTokenize {
         for (int i = 0; i < tokens.size(); i++) {
             String term = tokens.get(i);
             if (!term.equals(term.toLowerCase())) {
-                String[] termArray = StringUtils.splitByCharacterTypeCamelCase(term);
-                tokens.remove(i);
-                for (int j = 0; j < termArray.length; j++) {
-                    tokens.add(i + j, termArray[j]);
+                List<String> termArray = new LinkedList<>(Arrays.asList(StringUtils.splitByCharacterTypeCamelCase(term)));
+                if (termArray.size() != 1) {
+                    tokens.remove(i);
+
+                    // removes Of because it is a stop word
+                    if (termArray.contains("Of")) {
+                        termArray.remove(termArray.indexOf("Of"));
+                    }
+                    for (int j = 0; j < termArray.size(); j++) {
+                        tokens.add(i + j, termArray.get(j));
+                    }
+                    i += (termArray.size() - 1);
                 }
-                i += (termArray.length - 1);
             }
         }
         return tokens;
@@ -155,46 +161,73 @@ public class ParseTokenize {
         }
     }
 
-    public static void main(String[] args) throws ParserConfigurationException, IOException, SAXException {
-        ParseTokenize parser = new ParseTokenize();
-        Document document = parser.parse(DOCUMENTNAME);
-        String docURI = "Document URI: " + document.getDocumentURI();
-        HashMap<String, String> dictionary = parser.getDescriptions(document, parser.xPath);
-        HashMap<String, List<String>> tokenizedDictionary = parser.tokenize(dictionary);
-        HashMap<String, List<String>> spellingMistakes = parser.spellCheck(tokenizedDictionary);
-
-        BufferedWriter bw = null;
-        FileWriter fw = null;
-
-        try /*OutputStream out = new BufferedOutputStream(Files.newOutputStream(FILENAME, CREATE, APPEND))*/ {
-            fw = new FileWriter(FILENAME);
-            bw = new BufferedWriter(fw);
-            bw.write(docURI);
+    private void printSpellingMistakes(File file, ParseTokenize parser){
+        try {
+            bw.write(file.getName());
             bw.newLine();
-            for (Map.Entry<String, List<String>> entry : spellingMistakes.entrySet()){
+
+            Document document = parser.parse(file);
+            HashMap<String, String> dictionary = parser.getDescriptions(document, parser.xPath);
+            HashMap<String, List<String>> tokenizedDictionary = parser.tokenize(dictionary);
+            HashMap<String, List<String>> spellingMistakes = parser.spellCheck(tokenizedDictionary);
+
+            // write Type Name and typos onto log file
+            for (Map.Entry<String, List<String>> entry : spellingMistakes.entrySet()) {
                 bw.write("Type Name: " + entry.getKey());
                 bw.newLine();
                 for (String mispell : entry.getValue()) {
                     bw.write(mispell);
                     bw.newLine();
                 }
+                bw.newLine();
+            }
+
+            // dashes indicate new file
+            bw.write("--------------------------");
+            bw.newLine();
+        } catch (IOException | SAXException | ParserConfigurationException e){
+            System.err.println(e);
+        }
+    }
+
+    // writes onto log file
+    private void loadDirectory(String directoryName, String directory, ParseTokenize parser) {
+        try {
+            // write Directory name
+            bw.write("Directory: " + directoryName);
+            bw.newLine();
+
+            // iterate through files in directory
+            for (File file : new File(directory).listFiles()) {
+                // write file name
+                parser.printSpellingMistakes(file, parser);
             }
         } catch (IOException e) {
             System.err.println(e);
+        }
+    }
+
+    public static void main(String[] args) throws ParserConfigurationException, IOException, SAXException {
+        ParseTokenize parser = new ParseTokenize();
+        try {
+            parser.fw = new FileWriter(LOGFILE);
+            parser.bw = new BufferedWriter(parser.fw);
+            parser.printSpellingMistakes(new File("C:\\Users\\lns16\\Documents\\BODTest\\AcknowledgeBOM.xsd"), parser);
+//            parser.loadDirectory("Test Directory ", TEST_DIRECTORY, parser);
+//            parser.loadDirectory("Model/BODs", DIRECTORY, parser);
+//            parser.loadDirectory("Model/Platform/2_3/BODs", PLATFORM_DIRECTORY, parser);
         } finally {
 
             try {
 
-                if (bw != null)
-                    bw.close();
+                if (parser.bw != null)
+                    parser.bw.close();
 
-                if (fw != null)
-                    fw.close();
+                if (parser.fw != null)
+                    parser.fw.close();
 
             } catch (IOException ex) {
-
                 ex.printStackTrace();
-
             }
 
         }
