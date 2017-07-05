@@ -88,10 +88,10 @@ public class ParseTokenize {
         HashMap<String, List<String>> tokenizedDictionary = new HashMap<>();
         List<String> tokens;
         for (Map.Entry<String, String> entry : dictionary.entrySet()) {
-            tokens = new LinkedList<>(Arrays.asList(entry.getValue().split(" |\\n")));
+            tokens = new LinkedList<>(Arrays.asList(entry.getValue().split(" |\\n|(\\b/\\b)|(\\b-\\b)")));
             for (int i = 0; i < tokens.size(); i++) {
                 // need to replace ".,()/·:'-" and "'s"
-                tokens.set(i, tokens.get(i).replaceAll("\\B's\\b", "").replaceAll("\\W", ""));
+                tokens.set(i, tokens.get(i).replaceAll("'s$", "").replaceAll("^\\W|\\W*$", ""));
             }
             tokenizedDictionary.put(entry.getKey(), removeStopWords(normalize(tokens)));
         }
@@ -183,14 +183,16 @@ public class ParseTokenize {
 
             if (spellingMistakes.size() != 0) {
                 errorFileCount++;
-                bw.write(errorFileCount + ". " + file.getName());
+                bw.write(errorFileCount + ".");
+                bw.newLine();
+                bw.write( file.getName() + " Spelling Mistakes");
                 bw.newLine();
                 // write Type Name and typos onto log file
                 for (Map.Entry<String, List<String>> entry : spellingMistakes.entrySet()) {
-                    bw.write("Type Name: " + entry.getKey());
+                    bw.write("Type Name: _" + entry.getKey() + "_");
                     bw.newLine();
                     for (String mispell : entry.getValue()) {
-                        bw.write(mispell);
+                        bw.write("- " + mispell);
                         bw.newLine();
                     }
                     bw.newLine();
@@ -212,6 +214,7 @@ public class ParseTokenize {
         try {
             // write Directory name
             bw.write("Directory: " + directoryName);
+            bw.newLine();
             bw.newLine();
 
             // iterate through files in directory
@@ -252,7 +255,7 @@ public class ParseTokenize {
     public static void main(String[] args) throws ParserConfigurationException, IOException, SAXException {
         ParseTokenize parser = new ParseTokenize();
 
-        parser.writeLogfile("./get_logfile.txt", "Get Schemas", SAMPLE_DIRECTORY, parser);
+        parser.writeLogfile("./acknowledge_logfile.txt", "Acknowledge Schemas", SAMPLE_DIRECTORY, parser);
 //        parser.writeLogfile("./ModelBODs_logfile.txt", "Model/BODs", DIRECTORY, parser);
 //        parser.writeLogfile("./ModelPlatform_logfile.txt", "Model/Platform/2_3/BODs", PLATFORM_DIRECTORY, parser);
     }
