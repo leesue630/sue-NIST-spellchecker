@@ -24,7 +24,7 @@ public class ParseTokenize {
 
     private static final String DIRECTORY = "C:\\Users\\lns16\\Documents\\OAGi-Semantic-Refinement-and-Tooling\\data\\OAGIS_10_3_EnterpriseEdition\\OAGi-BPI-Platform\\org_openapplications_oagis\\10_3\\Model\\BODs";
     private static final String PLATFORM_DIRECTORY = "C:\\Users\\lns16\\Documents\\OAGi-Semantic-Refinement-and-Tooling\\data\\OAGIS_10_3_EnterpriseEdition\\OAGi-BPI-Platform\\org_openapplications_oagis\\10_3\\Model\\Platform\\2_3\\BODs";
-    private static final String SAMPLE_DIRECTORY = "C:\\Users\\lns16\\Documents\\BODSample";
+    private static final String SAMPLE_DIRECTORY = "C:\\Users\\lns16\\Documents\\BOD_Samples\\";
     private XPathFactory xPathFactory;
     private XPath xPath;
     private BufferedWriter bw = null;
@@ -33,12 +33,15 @@ public class ParseTokenize {
     private static final List<String> EXTENDED_STOP_WORDS = Arrays.asList(
             "among", "could", "during", "etc", "from", "others", "since", "than", "them", "unapproved", "upon", "versa", "we", "what", "when", "where", "which", "without", "would", "you",
             // these are not in the WordNet database
-            "reenter", "reseller"
+            "reenter", "reseller", "geocoded", "geocoding", "proactively"
     );
     private static final List<String> BOD_ACRONYMS = Arrays.asList(
             "BOD", "WIP", "IST", "MRP", "ERP", "BOM", "RFQ", "ERP", "HRMS", "CSM", "PDM", "OAGIS", "BSR", "PDC", "CMMS", "GL", "OA"
     );
-
+    ApplicationContext applicationContext = new AnnotationConfigApplicationContext(
+            SpellCheckerConfig.class
+    );
+    SpellChecker spellChecker = applicationContext.getBean(SpellChecker.class);
     public ParseTokenize() {
         this.xPathFactory = XPathFactory.newInstance();
         this.xPath = xPathFactory.newXPath();
@@ -102,7 +105,7 @@ public class ParseTokenize {
     private List<String> removeStopWords(List<String> tokens) {
         List<String> revisedTokens = new ArrayList<>();
         for (String term : tokens) {
-            if (!isSpecialWord(term) && !term.equals("")) {
+            if (!isSpecialWord(term) && !term.equals("") && !term.equals("\t")) {
                 revisedTokens.add(term);
             }
         }
@@ -160,10 +163,6 @@ public class ParseTokenize {
 
     // checks the spelling of terms
     private boolean spellCheck(String term) throws SpellCheckException {
-        ApplicationContext applicationContext = new AnnotationConfigApplicationContext(
-                SpellCheckerConfig.class
-        );
-        SpellChecker spellChecker = applicationContext.getBean(SpellChecker.class);
         try {
             spellChecker.check(term.toLowerCase());
             return true;
@@ -180,7 +179,6 @@ public class ParseTokenize {
             HashMap<String, String> dictionary = parser.getDescriptions(document, parser.xPath);
             HashMap<String, List<String>> tokenizedDictionary = parser.tokenize(dictionary);
             HashMap<String, List<String>> spellingMistakes = parser.spellCheck(tokenizedDictionary);
-
             if (spellingMistakes.size() != 0) {
                 errorFileCount++;
                 bw.write(errorFileCount + ".");
@@ -230,12 +228,14 @@ public class ParseTokenize {
         }
     }
 
-    private void writeLogfile(String logFileName, String directoryName, String directory, ParseTokenize parser) throws IOException {
+    private void writeLogfile(String prefix, ParseTokenize parser) throws IOException {
+        String directory = SAMPLE_DIRECTORY + prefix;
+        String directoryName = prefix + " Schemas";
         try {
-            parser.fw = new FileWriter(logFileName);
+            parser.fw = new FileWriter("./" + prefix.toLowerCase() + "_logfile.txt");
             parser.bw = new BufferedWriter(parser.fw);
             // Test single file
-//        parser.printSpellingMistakes(new File("C:\\Users\\lns16\\Documents\\BODTest\\AcknowledgeBOM.xsd"), parser);
+//            parser.printSpellingMistakes(new File("C:\\Users\\lns16\\Documents\\BOD_Samples\\Acknowledge\\AcknowledgePriceList.xsd"), parser);
             parser.loadDirectory(directoryName, directory, parser);
 
         } finally {
@@ -255,7 +255,7 @@ public class ParseTokenize {
     public static void main(String[] args) throws ParserConfigurationException, IOException, SAXException {
         ParseTokenize parser = new ParseTokenize();
 
-        parser.writeLogfile("./acknowledge_logfile.txt", "Acknowledge Schemas", SAMPLE_DIRECTORY, parser);
+        parser.writeLogfile("Change", parser);
 //        parser.writeLogfile("./ModelBODs_logfile.txt", "Model/BODs", DIRECTORY, parser);
 //        parser.writeLogfile("./ModelPlatform_logfile.txt", "Model/Platform/2_3/BODs", PLATFORM_DIRECTORY, parser);
     }
