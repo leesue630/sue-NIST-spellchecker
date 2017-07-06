@@ -31,12 +31,12 @@ public class ParseTokenize {
     private FileWriter fw = null;
     private int errorFileCount = 0;
     private static final List<String> EXTENDED_STOP_WORDS = Arrays.asList(
-            "among", "could", "during", "etc", "from", "others", "since", "than", "them", "unapproved", "upon", "versa", "we", "what", "when", "where", "which", "without", "would", "you",
+            "against", "among", "could", "during", "etc", "from", "how", "others", "per", "should", "since", "than", "them", "toward", "unapproved", "upon", "versa", "we", "what", "when", "where", "which", "without", "would", "you",
             // these are not in the WordNet database
-            "reenter", "reseller", "geocoded", "geocoding", "proactively"
+            "customization", "reenter", "reseller", "geocoded", "geocoding", "proactively", "subline", "via", "asynchronously"
     );
     private static final List<String> BOD_ACRONYMS = Arrays.asList(
-            "BOD", "WIP", "IST", "MRP", "ERP", "BOM", "RFQ", "ERP", "HRMS", "CSM", "PDM", "OAGIS", "BSR", "PDC", "CMMS", "GL", "OA"
+            "BOD", "WIP", "IST", "MRP", "ERP", "BOM", "RFQ", "ERP", "HRMS", "CSM", "PDM", "OAGIS", "BSR", "PDC", "CMMS", "GL", "OA", "UOM"
     );
     ApplicationContext applicationContext = new AnnotationConfigApplicationContext(
             SpellCheckerConfig.class
@@ -94,7 +94,7 @@ public class ParseTokenize {
             tokens = new LinkedList<>(Arrays.asList(entry.getValue().split(" |\\n|(\\b/\\b)|(\\b-\\b)")));
             for (int i = 0; i < tokens.size(); i++) {
                 // need to replace ".,()/·:'-" and "'s"
-                tokens.set(i, tokens.get(i).replaceAll("'s$", "").replaceAll("^\\W|\\W*$", ""));
+                tokens.set(i, tokens.get(i).replaceAll("('s$)|(\\(s\\)$)", "").replaceAll("^\\W|\\W*$", ""));
             }
             tokenizedDictionary.put(entry.getKey(), removeStopWords(normalize(tokens)));
         }
@@ -105,7 +105,7 @@ public class ParseTokenize {
     private List<String> removeStopWords(List<String> tokens) {
         List<String> revisedTokens = new ArrayList<>();
         for (String term : tokens) {
-            if (!isSpecialWord(term) && !term.equals("") && !term.equals("\t")) {
+            if (!isSpecialWord(term) && !term.equals("") && !term.equals("\t") && !term.equals(".")) {
                 revisedTokens.add(term);
             }
         }
@@ -203,7 +203,7 @@ public class ParseTokenize {
 
             System.out.println("FILE: " + file.getName() + " DONE");
         } catch (IOException | SAXException | ParserConfigurationException e) {
-            System.err.print(e);
+            System.err.print(e + "; Invalid file path");
         }
     }
 
@@ -211,6 +211,7 @@ public class ParseTokenize {
     private void loadDirectory(String directoryName, String directory, ParseTokenize parser) {
         try {
             // write Directory name
+            errorFileCount = 0;
             bw.write("Directory: " + directoryName);
             bw.newLine();
             bw.newLine();
@@ -224,15 +225,21 @@ public class ParseTokenize {
             bw.write(errorFileCount + " files with spelling mistakes.");
             bw.newLine();
         } catch (IOException e) {
-            System.err.println(e);
+            System.err.println(e + "; Invalid Directory Path");
         }
     }
 
-    private void writeLogfile(String prefix, ParseTokenize parser) throws IOException {
+    private void writeLogfile(String prefix, ParseTokenize parser) throws IOException{
         String directory = SAMPLE_DIRECTORY + prefix;
         String directoryName = prefix + " Schemas";
+        String logfileName = "./SpellingMistakes/" + prefix.toLowerCase() + "_logfile.txt";
+        parser.writeLogfile(directory, directoryName, logfileName, parser);
+    }
+
+    private void writeLogfile(String directory, String directoryName, String logfileName, ParseTokenize parser) throws IOException {
+
         try {
-            parser.fw = new FileWriter("./" + prefix.toLowerCase() + "_logfile.txt");
+            parser.fw = new FileWriter(logfileName);
             parser.bw = new BufferedWriter(parser.fw);
             // Test single file
 //            parser.printSpellingMistakes(new File("C:\\Users\\lns16\\Documents\\BOD_Samples\\Acknowledge\\AcknowledgePriceList.xsd"), parser);
@@ -254,9 +261,7 @@ public class ParseTokenize {
 
     public static void main(String[] args) throws ParserConfigurationException, IOException, SAXException {
         ParseTokenize parser = new ParseTokenize();
-
-        parser.writeLogfile("Change", parser);
 //        parser.writeLogfile("./ModelBODs_logfile.txt", "Model/BODs", DIRECTORY, parser);
-//        parser.writeLogfile("./ModelPlatform_logfile.txt", "Model/Platform/2_3/BODs", PLATFORM_DIRECTORY, parser);
+        parser.writeLogfile(DIRECTORY, "Model/BODs", "./SpellingMistakes/Model_logfile.txt", parser);
     }
 }
