@@ -304,16 +304,23 @@ public class ParseTokenize {
             if (dictionary.size() != 0){ // check for empty document
                 HashMap<String, List<String>> tokenizedDictionary = parser.tokenize(dictionary);
                 HashMap<String, List<String>> spellingMistakes = parser.spellCheck(tokenizedDictionary);
+
+                // if there are spelling mistakes
                 if (spellingMistakes.size() != 0) {
                     mispelledFileCount++;
                     bw.write(mispelledFileCount + ".");
                     bw.newLine();
+
+                    // write file path and Spelling Mistakes
                     bw.write(directoryName + "/" + file.getName() + " Spelling Mistakes");
                     bw.newLine();
-                    // write Type Name and typos onto log file
+
+                    // writes typos onto log file
                     for (Map.Entry<String, List<String>> entry : spellingMistakes.entrySet()) {
                         bw.write(entry.getKey());
                         bw.newLine();
+
+                        // prints each typo
                         for (String mispell : entry.getValue()) {
                             bw.write("- " + mispell);
                             bw.newLine();
@@ -336,10 +343,11 @@ public class ParseTokenize {
     }
 
     // writes onto log file
-    private void loadDirectory(String directoryName, String directory, ParseTokenize parser) {
+    private void loadDirectory(String directory, String directoryName, ParseTokenize parser) {
         try {
-            // write Directory name
             mispelledFileCount = 0;
+
+            // write Directory name
             bw.write("Directory: " + directoryName);
             bw.newLine();
             bw.newLine();
@@ -348,13 +356,15 @@ public class ParseTokenize {
             for (File file : new File(directory).listFiles()) {
                 // write file name
                 currentFileName = file.getName();
-                if (!currentFileName.contains("IST")) {
 
+                // ignore IST files
+                if (!currentFileName.contains("IST")) {
                     parser.printSpellingMistakes(file, parser, directoryName);
                 } else {
                     System.out.println("Skipped IST file: " + currentFileName);
                 }
             }
+
             System.out.println("DIRECTORY: " + directoryName + " DONE");
             bw.write(mispelledFileCount + " files with spelling mistakes.");
             bw.newLine();
@@ -363,22 +373,56 @@ public class ParseTokenize {
         }
     }
 
-    private void writeLogfile(String prefix, ParseTokenize parser) throws IOException {
-        String directory = DIRECTORY_PREFIX + prefix;
-        String directoryName = "Model/BODs";
-        String logfileName = "./SpellingMistakes/" + prefix.toLowerCase() + "_logfile.txt";
+    // write log file using suffix
+    private void writeLogfile(String suffix, ParseTokenize parser) throws IOException {
+        String directory = DIRECTORY_PREFIX + suffix;
+        String directoryName = "Model/" + suffix;
+
+        // create or write over logfile in SpellingMistakes folder
+        String logfileName = "./SpellingMistakes/" + suffix.toLowerCase() + "_logfile.txt";
         parser.writeLogfile(directory, directoryName, logfileName, parser);
     }
 
+    // write log file
     private void writeLogfile(String directory, String directoryName, String logfileName, ParseTokenize parser) throws IOException {
-
         try {
             parser.fw = new FileWriter(logfileName);
             parser.bw = new BufferedWriter(parser.fw);
+            // TODO: function to test single file
             // Test single file
-//            parser.printSpellingMistakes(new File(DIRECTORY + "BODs\\CancelAcknowledgeCostingActivity.xsd"), parser, "CancelAcknowledgeCostingActivity.xsd");
-            parser.loadDirectory(directoryName, directory, parser);
+            // parser.printSpellingMistakes(new File(DIRECTORY + "BODs\\CancelAcknowledgeCostingActivity.xsd"), parser, "CancelAcknowledgeCostingActivity.xsd");
 
+            // Test directory
+            parser.loadDirectory(directory, directoryName, parser);
+
+        } finally {
+            try {
+                if (parser.bw != null)
+                    parser.bw.close();
+
+                if (parser.fw != null)
+                    parser.fw.close();
+
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    // write log file for single file
+    private void writeLogfileForSingleFile(String suffix, ParseTokenize parser){
+        String filePath = DIRECTORY_PREFIX + suffix;
+        String directoryName = "Model/" + suffix;
+        String logfileName = "./SpellingMistakes/" + suffix.toLowerCase().replace(".xsd", "").replaceAll("\\\\", "_") + "_logfile.txt";
+
+        // create or write over logfile in SpellingMistakes folder
+        try {
+            parser.fw = new FileWriter(logfileName);
+            parser.bw = new BufferedWriter(parser.fw);
+            parser.printSpellingMistakes(new File(filePath), parser, directoryName);
+
+        } catch (IOException ex) {
+            ex.printStackTrace();
         } finally {
             try {
                 if (parser.bw != null)
@@ -395,20 +439,7 @@ public class ParseTokenize {
 
     public static void main(String[] args) throws ParserConfigurationException, IOException, SAXException {
         ParseTokenize parser = new ParseTokenize();
-        parser.writeLogfile("Acknowledge", parser);
-        parser.writeLogfile("Cancel", parser);
-        parser.writeLogfile("Change", parser);
-        parser.writeLogfile("Get", parser);
-        parser.writeLogfile("Load", parser);
-        parser.writeLogfile("Notify", parser);
-        parser.writeLogfile("Post", parser);
-        parser.writeLogfile("Process", parser);
-        parser.writeLogfile("Show", parser);
-        parser.writeLogfile("Sync", parser);
-
-//        parser.writeLogfile(DIRECTORY + "\\BODs", "Model/BODs", "./SpellingMistakes/test_logfile.txt", parser);
-        //        parser.writeLogfile(DIRECTORY + "Nouns", "Model/Nouns", "./SpellingMistakes/Model_Nouns_logfile.txt", parser);
-//        parser.writeLogfile(DIRECTORY + "Platform\\2_3\\Common\\CodeLists", "Model/Platform/2_3/Common/CodeLists", "./SpellingMistakes/Model_Platform_Common_CodeLists_logfile.txt", parser);
-//        parser.writeLogfile(DIRECTORY + "Platform\\2_3\\Extension", "Model/Platform/2_3/Extension", "./SpellingMistakes/Model_Platform_Extension_logfile.txt", parser);
+//        parser.writeLogfile("BODs", parser);
+        parser.writeLogfileForSingleFile("BODs\\AcknowledgeBOM.xsd", parser);
     }
 }

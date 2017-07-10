@@ -16,7 +16,7 @@ public class WordnetSpellCheckerTestCase {
 
     @Test(expected = SpellCheckException.class)
     public void testBOM() {
-        spellChecker.check("BOM");
+        spellChecker.check("where");
     }
 
     @Test
