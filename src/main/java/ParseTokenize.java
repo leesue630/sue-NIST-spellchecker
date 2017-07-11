@@ -2,9 +2,11 @@
  * Created by lns16 on 6/29/2017.
  */
 
+import gov.nist.surf2017.sue.Lists.WordLists;
 import gov.nist.surf2017.sue.config.SpellCheckerConfig;
 import gov.nist.surf2017.sue.spellchecker.SpellCheckException;
 import gov.nist.surf2017.sue.spellchecker.SpellChecker;
+import net.sf.extjwnl.data.Word;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
@@ -28,39 +30,6 @@ public class ParseTokenize {
     private FileWriter fw = null;
     private int mispelledFileCount = 0;
     private String currentFileName = "";
-    private static final List<String> EXTENDED_STOP_WORDS = Arrays.asList(
-            "against", "although", "among", "amongst", "because", "cannot",
-            "could", "dr", "during", "eg", "etc", "from", "his", "how", "itself", "multi", "others",
-            "per", "pre", "should", "since", "something", "than", "them", "those", "toward",
-            "unapproved", "unless", "until", "upon", "versa", "via", "we", "what", "when",
-            "where", "whereas", "whether", "which", "whom", "whose", "without",
-            "would", "you", "your", "yourself",
-
-            // these are not in the WordNet database
-            "proactively", "geocode", "geocoded", "geocoding", "subsample", "subsamples",
-            "selectable", "unreceived", "backflushed", "intraoperation", "subassembly",
-            "subassemblies", "reseller", "subline", "designator", "sublot",
-            "nonconformant", "datetime", "timeperiod", "timestamp",
-            "customization", "reenter", "rulebook", "asynchronously", "inline", "meta",
-            "truckload", "postcondition", "transactional", "dept", "namespace", "middleware",
-
-            "antillian", "aruban", "azerbaijanian", "belarussian", "congolais",
-            "renminbi", "rican", "verde", "nakfa", "falkland", "kong", "kuna", "sheqel",
-            "sri", "lanka", "malagasy", "denar", "rufiyaa", "oro", "nuevo", "st", "tolar",
-            "somoni", "anga", "uruguayo", "fuerte", "vatu", "cefact", "uom", "xml"
-    );
-    private static final List<String> BOD_ACRONYMS = Arrays.asList(
-            "BOD", "WIP", "IST", "MRP", "BOM", "RFQ", "ERP", "HRMS", "CSM", "PDM",
-            "OAGIS", "CMMS", "BSR", "xsd", "TRACKINGID", "GL", "WIPSTATUS",
-            "SEARCHTERM", "PRODUCTLINE", "Fedex", "USERAREA", "Schematron",
-            "ISO", "Thh", "YYYY", "hh", "DDD",
-            "URI", "UML", "MDA", "CFA", "SDR", "CFP",
-            "RFID", "ISBN", "PLSS", "ABIE", "CRM", "JSON", "INCOTERMS",
-            "UCC", "RUABIE", "TBG", "UPC", "JIT", "LTL", "FIIN", "DAAC", "CHK",
-            "SHIPUNITSEQ", "SHIPUNITTOT", "NMFC", "MFAG", "ASN",
-            "BO", // BODs becomes BO when normalized for camel case
-            "OA"  // OAGi becomes OA when normalized for camel case
-    );
     ApplicationContext applicationContext = new AnnotationConfigApplicationContext(
             SpellCheckerConfig.class
     );
@@ -282,7 +251,7 @@ public class ParseTokenize {
             if (!isNumeric(term.replaceAll("\\.|,", ""))) {
 
                 // if term is not empty or non-word characters add term to revised token list
-                if (!isSpecialWord(term) && !term.equals("") && !regexChecker("^[\\W]*$", term)) {
+                if (!WordLists.isSpecialWord(term) && !term.equals("") && !regexChecker("^[\\W]*$", term)) {
                     revisedTokens.add(term);
                 }
             }
@@ -308,12 +277,12 @@ public class ParseTokenize {
     }
 
     // checks if term is a stop word or BOD Acronym
-    private boolean isSpecialWord(String term) {
-        if (StandardAnalyzer.ENGLISH_STOP_WORDS_SET.contains(term.toLowerCase()) || EXTENDED_STOP_WORDS.contains(term.toLowerCase()) || BOD_ACRONYMS.contains(term)) {
-            return true;
-        }
-        return false;
-    }
+//    private boolean isSpecialWord(String term) {
+//        if (StandardAnalyzer.ENGLISH_STOP_WORDS_SET.contains(term.toLowerCase()) || EXTENDED_STOP_WORDS.contains(term.toLowerCase()) || BOD_ACRONYMS.contains(term)) {
+//            return true;
+//        }
+//        return false;
+//    }
 
     // creates hash map of all spelling mistakes with type names
     // if type has no typos, key is not added to hash map
@@ -364,7 +333,6 @@ public class ParseTokenize {
                 if (spellingMistakes.size() != 0) {
                     mispelledFileCount++;
                     bw.write(mispelledFileCount + ".");
-                    bw.newLine();
 
                     // write file path and Spelling Mistakes
                     bw.write(file.getName() + " Spelling Mistakes");
@@ -374,61 +342,13 @@ public class ParseTokenize {
                     for (Map.Entry<String, List<String>> entry : spellingMistakes.entrySet()) {
                         bw.write(entry.getKey());
                         bw.newLine();
-
+                        String autocorrectTerm;
                         // prints each typo
                         for (String mispell : entry.getValue()) {
                             bw.write("- " + mispell);
-                            switch (mispell) {
-                                case "Acknowledgehronize":
-                                    bw.write(" => Acknowledge or Synchronize");
-                                    break;
-                                case "Acknowledgehronized":
-                                    bw.write(" => Acknowledged or Synchronized");
-                                    break;
-                                case "Acknowledgehronizing":
-                                    bw.write(" => Acknowledging or Synchronizing");
-                                    break;
-                                case "Acknowledgehronization":
-                                    bw.write(" => Acknowledgement or Synchronization");
-                                    break;
-                                case "typiically":
-                                    bw.write(" => typically");
-                                    break;
-                                case "owne":
-                                    bw.write(" => owner");
-                                    break;
-                                case "resulst":
-                                    bw.write(" => result");
-                                    break;
-                                case "coresponding":
-                                    bw.write(" => corresponding");
-                                    break;
-                                case "Proces":
-                                    bw.write(" => Process");
-                                    break;
-                                case "simpilify":
-                                    bw.write(" => simplify");
-                                    break;
-                                case "Puchase":
-                                    bw.write(" => Purchase");
-                                    break;
-                                case "Chagne":
-                                    bw.write(" => Change");
-                                    break;
-                                case "Opportunityis":
-                                    bw.write(" => Opportunity is");
-                                    break;
-                                case "capabilit":
-                                    bw.write(" => capability");
-                                    break;
-                                case "Salesorder":
-                                    bw.write(" => Sales order");
-                                    break;
-                                case "Purchaseorder":
-                                    bw.write(" => Purchase order");
-                                    break;
-                                default:
-                                    break;
+                            autocorrectTerm = WordLists.autocorrectTerm(mispell);
+                            if (autocorrectTerm != null){
+                                bw.write(" => " + autocorrectTerm);
                             }
                             bw.newLine();
                         }
@@ -543,7 +463,7 @@ public class ParseTokenize {
 
     public static void main(String[] args) throws ParserConfigurationException, IOException, SAXException {
         ParseTokenize parser = new ParseTokenize();
-//        parser.writeLogfile("BODs", parser);
+        parser.writeLogfile("BODs", parser);
 //        parser.writeLogfile("Nouns", parser);
 //        parser.writeLogfile("Platform\\2_3\\BODs", parser);
 //        parser.writeLogfileForSingleFile("Platform\\2_3\\Extension\\Extensions.xsd", parser);
@@ -553,6 +473,6 @@ public class ParseTokenize {
 //        parser.writeLogfile("Platform\\2_3\\Common\\Components", parser);
 //        parser.writeLogfile("Platform\\2_3\\Common\\DataTypes", parser);
 //        parser.writeLogfileForSingleFile("Platform\\2_3\\Common\\DataTypes\\XMLSchemaBuiltinType_1_patterns.xsd", parser);
-        parser.writeLogfile("Platform\\2_3\\Common\\IdentifierScheme", parser);
+//        parser.writeLogfile("Platform\\2_3\\Common\\IdentifierScheme", parser);
     }
 }
