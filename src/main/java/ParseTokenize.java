@@ -264,11 +264,11 @@ public class ParseTokenize {
     // if type has no typos, key is not added to hash map
     private HashMap<String, List<String>> spellCheck(HashMap<String, List<String>> tokenizedHashMap) {
         HashMap<String, List<String>> mispelledHashMap = new HashMap<>();
-        List<String> mispelledTerms = new ArrayList<>();;
+        List<String> mispelledTerms;
 
         // iterate through entries in tokenized hash map
         for (Map.Entry<String, List<String>> entry : tokenizedHashMap.entrySet()) {
-
+            mispelledTerms = new ArrayList<>();
             // iterate through tokenized terms and add terms which are spelled correctly
             for (String term : entry.getValue()) {
                 if (!spellCheckWord(term)) {
