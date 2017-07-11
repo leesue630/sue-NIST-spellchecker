@@ -15,7 +15,6 @@ import org.apache.commons.lang.StringUtils;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.*;
 import java.io.*;
 
 import java.util.*;
@@ -65,7 +64,7 @@ public class ParseTokenize {
     }
 
     // gets CCTS Description/Definition for single documentation node
-    private Map.Entry<String, String> getCCTSDescriptions(Node node) {
+    private Map.Entry<String, String> getCCTSData(Node node) {
 
         String CCTS_Name = "Unknown";
         // tag <ccts_Definition> or <ccts_Description>
@@ -91,24 +90,24 @@ public class ParseTokenize {
     }
 
     // for CodeList_CurrencyCode_ISO_7_04.xsd
-    private Map.Entry<String, String> getCodeNameDescriptions(Node node) {
+    private Map.Entry<String, String> getCodeName(Node node) {
 
         String value = "Unknown";
         String codeName = "Unknown";
 
         try {
-            value = node.getParentNode().getParentNode().getParentNode().getAttributes().getNamedItem("value").getNodeValue();
+            value = node.getParentNode().getParentNode().getAttributes().getNamedItem("value").getNodeValue();
             codeName = node.getChildNodes().item(1).getFirstChild().getNodeValue();
         } catch (NullPointerException typeErr) {
-            System.err.println("ERROR: no CodeName: ");
+            System.err.println("ERROR: no CodeName");
         }
 
         return new AbstractMap.SimpleEntry<String, String>("Value: _" + value + "_", codeName);
     }
 
 //    // TODO: fix
-//    private HashMap<String, String> getCCTSDataTypeDescriptions(Document doc) {
-//        HashMap<String, String> dictionary = new HashMap<>();
+//    private LinkedHashMap<String, String> getCCTSDataTypeDescriptions(Document doc) {
+//        LinkedHashMap<String, String> dictionary = new LinkedHashMap<>();
 //        NodeList nodeList1 = doc.getElementsByTagName("ccts_Definition");
 //
 //        for (int i = 0; i < nodeList1.getLength() && nodeList1.getLength() != 0; i++) {
@@ -134,8 +133,8 @@ public class ParseTokenize {
 //    }
 
     // creates a hash map of key(element types/names/refs) with documentation
-    private HashMap<String, String> getDescriptions(Document doc) {
-        HashMap<String, String> hashMap = new HashMap<>();
+    private LinkedHashMap<String, String> getDescriptions(Document doc) {
+        LinkedHashMap<String, String> hashMap = new LinkedHashMap<>();
         Map.Entry<String, String> entry = new AbstractMap.SimpleEntry<String, String>("Unknown", "Unknown");
 
         // nodeList: list of all documentation nodes
@@ -156,9 +155,9 @@ public class ParseTokenize {
                 default:
                     String firstChildTagName = currentNode.getChildNodes().item(1).getNodeName();
                     if (firstChildTagName == "CodeName") {
-                        entry = getCodeNameDescriptions(currentNode);
+                        entry = getCodeName(currentNode);
                     } else if (firstChildTagName.contains("ccts")) {
-                        entry = getCCTSDescriptions(currentNode);
+                        entry = getCCTSData(currentNode);
                     }
                     break;
             }
@@ -214,8 +213,8 @@ public class ParseTokenize {
     }
 
     // tokenize descriptions: split by spaces, remove stop words, normalize camel case
-    private HashMap<String, List<String>> tokenize(HashMap<String, String> hashMap) {
-        HashMap<String, List<String>> tokenizedHashMap = new HashMap<>();
+    private LinkedHashMap<String, List<String>> tokenize(LinkedHashMap<String, String> hashMap) {
+        LinkedHashMap<String, List<String>> tokenizedHashMap = new LinkedHashMap<>();
         List<String> tokens;
 
         // iterate through hash map and tokenize all descriptions
@@ -313,8 +312,8 @@ public class ParseTokenize {
 
     // creates hash map of all spelling mistakes with type names
     // if type has no typos, key is not added to hash map
-    private HashMap<String, List<String>> spellCheck(HashMap<String, List<String>> tokenizedHashMap) {
-        HashMap<String, List<String>> mispelledHashMap = new HashMap<>();
+    private LinkedHashMap<String, List<String>> spellCheck(LinkedHashMap<String, List<String>> tokenizedHashMap) {
+        LinkedHashMap<String, List<String>> mispelledHashMap = new LinkedHashMap<>();
         List<String> mispelledTerms;
 
         // iterate through entries in tokenized hash map
@@ -350,11 +349,11 @@ public class ParseTokenize {
     private void printSpellingMistakes(File file, ParseTokenize parser, String directoryName) {
         try {
             Document document = parser.parseFile(file);
-            HashMap<String, String> dictionary = parser.getDescriptions(document);
+            LinkedHashMap<String, String> dictionary = parser.getDescriptions(document);
 
             if (dictionary.size() != 0) { // check for empty document
-                HashMap<String, List<String>> tokenizedDictionary = parser.tokenize(dictionary);
-                HashMap<String, List<String>> spellingMistakes = parser.spellCheck(tokenizedDictionary);
+                LinkedHashMap<String, List<String>> tokenizedDictionary = parser.tokenize(dictionary);
+                LinkedHashMap<String, List<String>> spellingMistakes = parser.spellCheck(tokenizedDictionary);
 
                 // if there are spelling mistakes
                 if (spellingMistakes.size() != 0) {
