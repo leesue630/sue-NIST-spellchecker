@@ -29,18 +29,37 @@ public class ParseTokenize {
     private int mispelledFileCount = 0;
     private String currentFileName = "";
     private static final List<String> EXTENDED_STOP_WORDS = Arrays.asList(
-            "against", "although", "among", "amongst", "because", "cannot", "could", "during", "etc", "from", "his", "how", "multi", "others", "per", "pre", "should", "since", "than", "them", "those", "toward", "unapproved", "unless", "until", "upon", "versa", "we", "what", "when", "where", "whereas", "whether", "which", "whom", "whose", "without", "would", "you", "your",
+            "against", "although", "among", "amongst", "because", "cannot",
+            "could", "dr", "during", "eg", "etc", "from", "his", "how", "itself", "multi", "others",
+            "per", "pre", "should", "since", "something", "than", "them", "those", "toward",
+            "unapproved", "unless", "until", "upon", "versa", "via", "we", "what", "when",
+            "where", "whereas", "whether", "which", "whom", "whose", "without",
+            "would", "you", "your", "yourself",
+
             // these are not in the WordNet database
-            "customization", "reenter", "reseller", "geocoded", "geocoding", "proactively", "subline", "via", "asynchronously", "inline", "itself", "something", "meta", "designator", "unreceived", "proactively", "subassemblies", "financials", "configurator", "incremented",
-            "postcondition", "Schematron",
-            // unsure about these words, but they appear often
-            "sublot", "nonconformant", "datetime", "timeperiod", "timestamp", "teardown", "predefined", "datetimes", "userid", "usergroup"
+            "proactively", "geocode", "geocoded", "geocoding", "subsample", "subsamples",
+            "selectable", "unreceived", "backflushed", "intraoperation", "subassembly",
+            "subassemblies", "reseller", "subline", "designator", "sublot",
+            "nonconformant", "datetime", "timeperiod", "timestamp",
+            "customization", "reenter", "rulebook", "asynchronously", "inline", "meta",
+            "truckload", "postcondition", "transactional", "dept", "namespace", "middleware",
+
+            "antillian", "aruban", "azerbaijanian", "belarussian", "congolais",
+            "renminbi", "rican", "verde", "nakfa", "falkland", "kong", "kuna", "sheqel",
+            "sri", "lanka", "malagasy", "denar", "rufiyaa", "oro", "nuevo", "st", "tolar",
+            "somoni", "anga", "uruguayo", "fuerte", "vatu", "cefact", "uom", "xml"
     );
     private static final List<String> BOD_ACRONYMS = Arrays.asList(
-            "BOD", "WIP", "IST", "MRP", "ERP", "BOM", "RFQ", "ERP", "HRMS", "CSM", "PDM", "OAGIS", "BSR", "PDC", "CMMS", "GL", "OA", "UOM", "XML", "CNC", "ASN", "CRM",
-            "RFID", "EDI", "WIPSTATUS", "CHK", "AP", "FDIS", "LTL", "LIMS", "ORIGEF", "PN", "xsd", "ORIGREF", "VRML", "RECEIPTITM", "RECEIPTLN", "DISTRIBUTN",
-            "TRACKINGID", "DHL", "Fedex", "UCC", "SCC", "truckload", "SHIPUNITSEQ", "SHIPUNITTOT", "PRODUCTLINE", "SEARCHTERM", "REQLINE", "USERAREA", "URI",
-            "BO" // because BODs becomes BO and Ds when normalized for camel case
+            "BOD", "WIP", "IST", "MRP", "BOM", "RFQ", "ERP", "HRMS", "CSM", "PDM",
+            "OAGIS", "CMMS", "BSR", "xsd", "TRACKINGID", "GL", "WIPSTATUS",
+            "SEARCHTERM", "PRODUCTLINE", "Fedex", "USERAREA", "Schematron",
+            "ISO", "Thh", "YYYY", "hh", "DDD",
+            "URI", "UML", "MDA", "CFA", "SDR", "CFP",
+            "RFID", "ISBN", "PLSS", "ABIE", "CRM", "JSON", "INCOTERMS",
+            "UCC", "RUABIE", "TBG", "UPC", "JIT", "LTL", "FIIN", "DAAC", "CHK",
+            "SHIPUNITSEQ", "SHIPUNITTOT", "NMFC", "MFAG", "ASN",
+            "BO", // BODs becomes BO when normalized for camel case
+            "OA"  // OAGi becomes OA when normalized for camel case
     );
     ApplicationContext applicationContext = new AnnotationConfigApplicationContext(
             SpellCheckerConfig.class
@@ -105,33 +124,6 @@ public class ParseTokenize {
         return new AbstractMap.SimpleEntry<String, String>("Value: _" + value + "_", codeName);
     }
 
-//    // TODO: fix
-//    private LinkedHashMap<String, String> getCCTSDataTypeDescriptions(Document doc) {
-//        LinkedHashMap<String, String> dictionary = new LinkedHashMap<>();
-//        NodeList nodeList1 = doc.getElementsByTagName("ccts_Definition");
-//
-//        for (int i = 0; i < nodeList1.getLength() && nodeList1.getLength() != 0; i++) {
-//            String CCTS_Name = "unknown name";
-//            String CCTS_Definition = nodeList1.item(i).getFirstChild().getNodeValue();
-//
-//            try {
-//                CCTS_Name = nodeList1.item(i).getParentNode().getParentNode().getParentNode().getAttributes().getNamedItem("name").getNodeValue();
-//                String nodeType = nodeList1.item(i).getParentNode().getParentNode().getParentNode().getNodeName();
-//            } catch (NullPointerException firstErr) {
-//                System.err.println("ERROR: broad name is not at third parent " + i);
-//                try {
-//                    CCTS_Name = nodeList1.item(i).getParentNode().getParentNode().getParentNode().getParentNode().getParentNode().getParentNode().getAttributes().getNamedItem("name").getNodeValue();
-//                } catch (NullPointerException secondErr) {
-//                    System.err.println("ERROR: broad name is not at sixth parent " + i);
-//                    System.err.println("ERROR: Failed to find name " + i);
-//                }
-//            } finally {
-//                dictionary.put("Name: _" + CCTS_Name + "_", CCTS_Definition);
-//            }
-//        }
-//        return dictionary;
-//    }
-
     // creates a hash map of key(element types/names/refs) with documentation
     private LinkedHashMap<String, String> getDescriptions(Document doc) {
         LinkedHashMap<String, String> hashMap = new LinkedHashMap<>();
@@ -192,6 +184,19 @@ public class ParseTokenize {
         return new AbstractMap.SimpleEntry<>(typeNameRef, description);
     }
 
+    private LinkedHashMap<String, String> sampleGetCCTSDefinition(Document doc) {
+        LinkedHashMap<String, String> hashMap = new LinkedHashMap<>();
+        // nodeList: list of all documentation nodes
+        NodeList nodeList = doc.getElementsByTagName("ccts_Definition");
+
+        // iterate through all documentation nodes
+        // attempt to find correct parent node with appropriate type, name, or ref attribute
+        for (int i = 0; i < nodeList.getLength() && nodeList.getLength() != 0; i++) {
+            hashMap.put("Unknown", nodeList.item(i).getFirstChild().getNodeValue()); // typeNameRef, description
+        }
+        return hashMap;
+    }
+
     // Type, Name, or Ref Value formatted
     private String getTypeNameRef(Node node) {
         String typeNameRef = "Unknown";
@@ -222,13 +227,13 @@ public class ParseTokenize {
             // tokenize using spaces, whitespace, backslash, dash, and underscore
             // \\b: non-word boundary TODO: acts weird here
             // \\B: word boundary
-            tokens = new LinkedList<>(Arrays.asList(entry.getValue().split(" |(\\b/\\b)|(\\b-\\b)|(\\B_\\B)")));
+            tokens = new LinkedList<>(Arrays.asList(entry.getValue().split(" |\n|(\\b/\\b)|(\\b-\\b)|(\\B_\\B)")));
 
             // cut off non-word characters at the beginning and end of tokens
             // cut off 's and (s) at the end of words
             for (int i = 0; i < tokens.size(); i++) {
                 // need to replace ".,()/·:'-" and "'s"
-                tokens.set(i, tokens.get(i).replaceAll("^\\W|\\W*$", "").replaceAll("('s$)|(\\(s$)", "").trim());
+                tokens.set(i, tokens.get(i).trim().replaceAll("^\\W|\\W*$", "").replaceAll("('s$)|(\\(s$)", ""));
             }
 
             // normalize tokens for camel case and remove special words
@@ -335,7 +340,7 @@ public class ParseTokenize {
     }
 
     // checks spelling of single term using WordNet database
-    private boolean spellCheckWord(String term) throws SpellCheckException {
+    private boolean spellCheckWord(String term) {
         try {
             spellChecker.check(term.toLowerCase());
             return true;
@@ -346,7 +351,7 @@ public class ParseTokenize {
 
     // writes spelling mistakes for a single file
     // writes nothing if file has no typos
-    private void printSpellingMistakes(File file, ParseTokenize parser, String directoryName) {
+    private void printSpellingMistakes(File file, ParseTokenize parser) {
         try {
             Document document = parser.parseFile(file);
             LinkedHashMap<String, String> dictionary = parser.getDescriptions(document);
@@ -362,7 +367,7 @@ public class ParseTokenize {
                     bw.newLine();
 
                     // write file path and Spelling Mistakes
-                    bw.write(directoryName + "/" + file.getName() + " Spelling Mistakes");
+                    bw.write(file.getName() + " Spelling Mistakes");
                     bw.newLine();
 
                     // writes typos onto log file
@@ -373,6 +378,58 @@ public class ParseTokenize {
                         // prints each typo
                         for (String mispell : entry.getValue()) {
                             bw.write("- " + mispell);
+                            switch (mispell) {
+                                case "Acknowledgehronize":
+                                    bw.write(" => Acknowledge or Synchronize");
+                                    break;
+                                case "Acknowledgehronized":
+                                    bw.write(" => Acknowledged or Synchronized");
+                                    break;
+                                case "Acknowledgehronizing":
+                                    bw.write(" => Acknowledging or Synchronizing");
+                                    break;
+                                case "Acknowledgehronization":
+                                    bw.write(" => Acknowledgement or Synchronization");
+                                    break;
+                                case "typiically":
+                                    bw.write(" => typically");
+                                    break;
+                                case "owne":
+                                    bw.write(" => owner");
+                                    break;
+                                case "resulst":
+                                    bw.write(" => result");
+                                    break;
+                                case "coresponding":
+                                    bw.write(" => corresponding");
+                                    break;
+                                case "Proces":
+                                    bw.write(" => Process");
+                                    break;
+                                case "simpilify":
+                                    bw.write(" => simplify");
+                                    break;
+                                case "Puchase":
+                                    bw.write(" => Purchase");
+                                    break;
+                                case "Chagne":
+                                    bw.write(" => Change");
+                                    break;
+                                case "Opportunityis":
+                                    bw.write(" => Opportunity is");
+                                    break;
+                                case "capabilit":
+                                    bw.write(" => capability");
+                                    break;
+                                case "Salesorder":
+                                    bw.write(" => Sales order");
+                                    break;
+                                case "Purchaseorder":
+                                    bw.write(" => Purchase order");
+                                    break;
+                                default:
+                                    break;
+                            }
                             bw.newLine();
                         }
                         bw.newLine();
@@ -409,7 +466,7 @@ public class ParseTokenize {
 
                 // ignore IST files
                 if (!currentFileName.contains("IST")) {
-                    parser.printSpellingMistakes(file, parser, directoryName);
+                    parser.printSpellingMistakes(file, parser);
                 } else {
                     System.out.println("Skipped IST file: " + currentFileName);
                 }
@@ -426,7 +483,7 @@ public class ParseTokenize {
     // write log file using suffix
     private void writeLogfile(String suffix, ParseTokenize parser) throws IOException {
         String directory = DIRECTORY_PREFIX + suffix;
-        String directoryName = "Model/" + suffix;
+        String directoryName = "Model\\" + suffix;
 
         // create or write over logfile in SpellingMistakes folder
         String logfileName = "./SpellingMistakes/" + suffix.toLowerCase().replaceAll("\\\\", "_") + "_logfile.txt";
@@ -438,9 +495,6 @@ public class ParseTokenize {
         try {
             parser.fw = new FileWriter(logfileName);
             parser.bw = new BufferedWriter(parser.fw);
-            // TODO: function to test single file
-            // Test single file
-            // parser.printSpellingMistakes(new File(DIRECTORY + "BODs\\CancelAcknowledgeCostingActivity.xsd"), parser, "CancelAcknowledgeCostingActivity.xsd");
 
             // Test directory
             parser.loadDirectory(directory, directoryName, parser);
@@ -462,14 +516,14 @@ public class ParseTokenize {
     // write log file for single file
     private void writeLogfileForSingleFile(String suffix, ParseTokenize parser) {
         String filePath = DIRECTORY_PREFIX + suffix;
-        String directoryName = "Model/" + suffix;
+        String directoryName = "Model\\" + suffix;
         String logfileName = "./SpellingMistakes/" + suffix.toLowerCase().replace(".xsd", "").replaceAll("\\\\", "_") + "_logfile.txt";
 
         // create or write over logfile in SpellingMistakes folder
         try {
             parser.fw = new FileWriter(logfileName);
             parser.bw = new BufferedWriter(parser.fw);
-            parser.printSpellingMistakes(new File(filePath), parser, directoryName);
+            parser.printSpellingMistakes(new File(filePath), parser);
 
         } catch (IOException ex) {
             ex.printStackTrace();
@@ -492,11 +546,13 @@ public class ParseTokenize {
 //        parser.writeLogfile("BODs", parser);
 //        parser.writeLogfile("Nouns", parser);
 //        parser.writeLogfile("Platform\\2_3\\BODs", parser);
+//        parser.writeLogfileForSingleFile("Platform\\2_3\\Extension\\Extensions.xsd", parser);
 //        parser.writeLogfileForSingleFile("Platform\\2_3\\Common\\CodeLists\\CodeLists_1.xsd", parser);
-        parser.writeLogfileForSingleFile("Platform\\2_3\\Common\\CodeLists\\CodeList_CurrencyCode_ISO_7_04.xsd", parser);
+//        parser.writeLogfileForSingleFile("Platform\\2_3\\Common\\CodeLists\\CodeList_CurrencyCode_ISO_7_04.xsd", parser);
 //        parser.writeLogfile("Platform\\2_3\\Common\\CodeLists", parser);
 //        parser.writeLogfile("Platform\\2_3\\Common\\Components", parser);
 //        parser.writeLogfile("Platform\\2_3\\Common\\DataTypes", parser);
-//        parser.writeLogfile("Platform\\2_3\\Common\\IdentifierScheme", parser);
+//        parser.writeLogfileForSingleFile("Platform\\2_3\\Common\\DataTypes\\XMLSchemaBuiltinType_1_patterns.xsd", parser);
+        parser.writeLogfile("Platform\\2_3\\Common\\IdentifierScheme", parser);
     }
 }
