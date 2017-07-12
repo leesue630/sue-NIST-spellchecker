@@ -248,7 +248,7 @@ public class ParseTokenize {
         for (String term : tokens) {
 
             // if term is a number
-            if (!isNumeric(term.replaceAll("\\.|,", ""))) {
+            if (!isNumeric(term.replaceAll("\\.|,|:", ""))) {
 
                 // if term is not empty or non-word characters add term to revised token list
                 if (!WordLists.isSpecialWord(term) && !term.equals("") && !regexChecker("^[\\W]*$", term)) {
@@ -276,14 +276,6 @@ public class ParseTokenize {
         return regexMatcher.find();
     }
 
-    // checks if term is a stop word or BOD Acronym
-//    private boolean isSpecialWord(String term) {
-//        if (StandardAnalyzer.ENGLISH_STOP_WORDS_SET.contains(term.toLowerCase()) || EXTENDED_STOP_WORDS.contains(term.toLowerCase()) || BOD_ACRONYMS.contains(term)) {
-//            return true;
-//        }
-//        return false;
-//    }
-
     // creates hash map of all spelling mistakes with type names
     // if type has no typos, key is not added to hash map
     private LinkedHashMap<String, List<String>> spellCheck(LinkedHashMap<String, List<String>> tokenizedHashMap) {
@@ -295,7 +287,7 @@ public class ParseTokenize {
             mispelledTerms = new ArrayList<>();
             // iterate through tokenized terms and add terms which are spelled correctly
             for (String term : entry.getValue()) {
-                if (!spellCheckWord(term)) {
+                if (!spellCheckWord(term) || term.equals("Acknowledgeed")) {
                     mispelledTerms.add(term);
                 }
             }
@@ -332,7 +324,7 @@ public class ParseTokenize {
                 // if there are spelling mistakes
                 if (spellingMistakes.size() != 0) {
                     mispelledFileCount++;
-                    bw.write(mispelledFileCount + ".");
+                    bw.write(mispelledFileCount + ". ");
 
                     // write file path and Spelling Mistakes
                     bw.write(file.getName() + " Spelling Mistakes");
@@ -393,7 +385,7 @@ public class ParseTokenize {
             }
 
             System.out.println("DIRECTORY: " + directoryName + " DONE");
-            bw.write(mispelledFileCount + " files with spelling mistakes.");
+            bw.write(mispelledFileCount + " file(s) with spelling mistakes.");
             bw.newLine();
         } catch (IOException e) {
             System.err.println(e + "; Invalid Directory Path");
@@ -463,16 +455,18 @@ public class ParseTokenize {
 
     public static void main(String[] args) throws ParserConfigurationException, IOException, SAXException {
         ParseTokenize parser = new ParseTokenize();
-        parser.writeLogfile("BODs", parser);
-//        parser.writeLogfile("Nouns", parser);
-//        parser.writeLogfile("Platform\\2_3\\BODs", parser);
-//        parser.writeLogfileForSingleFile("Platform\\2_3\\Extension\\Extensions.xsd", parser);
+//        String term = "SEARCHTERM";
+//        System.out.println(!WordLists.isSpecialWord(term) && !term.equals("") && !regexChecker("^[\\W]*$", term));
+//        parser.writeLogfile("BODs", parser); // DONE
+//        parser.writeLogfile("Nouns", parser); // DONE
+//        parser.writeLogfile("Platform\\2_3\\BODs", parser); // DONE
+//        parser.writeLogfileForSingleFile("Platform\\2_3\\Extension\\Extensions.xsd", parser); // No spelling mistakes
 //        parser.writeLogfileForSingleFile("Platform\\2_3\\Common\\CodeLists\\CodeLists_1.xsd", parser);
 //        parser.writeLogfileForSingleFile("Platform\\2_3\\Common\\CodeLists\\CodeList_CurrencyCode_ISO_7_04.xsd", parser);
-//        parser.writeLogfile("Platform\\2_3\\Common\\CodeLists", parser);
-//        parser.writeLogfile("Platform\\2_3\\Common\\Components", parser);
-//        parser.writeLogfile("Platform\\2_3\\Common\\DataTypes", parser);
+//        parser.writeLogfile("Platform\\2_3\\Common\\CodeLists", parser); // DONE
+//        parser.writeLogfile("Platform\\2_3\\Common\\Components", parser); // DONE
+//        parser.writeLogfile("Platform\\2_3\\Common\\DataTypes", parser); // No spelling mistakes
 //        parser.writeLogfileForSingleFile("Platform\\2_3\\Common\\DataTypes\\XMLSchemaBuiltinType_1_patterns.xsd", parser);
-//        parser.writeLogfile("Platform\\2_3\\Common\\IdentifierScheme", parser);
+        parser.writeLogfile("Platform\\2_3\\Common\\IdentifierScheme", parser);
     }
 }
