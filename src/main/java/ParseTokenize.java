@@ -467,6 +467,6 @@ public class ParseTokenize {
 //        parser.writeLogfile("Platform\\2_3\\Common\\Components", parser); // DONE
 //        parser.writeLogfile("Platform\\2_3\\Common\\DataTypes", parser); // No spelling mistakes
 //        parser.writeLogfileForSingleFile("Platform\\2_3\\Common\\DataTypes\\XMLSchemaBuiltinType_1_patterns.xsd", parser);
-        parser.writeLogfile("Platform\\2_3\\Common\\IdentifierScheme", parser);
+//        parser.writeLogfile("Platform\\2_3\\Common\\IdentifierScheme", parser);
     }
 }

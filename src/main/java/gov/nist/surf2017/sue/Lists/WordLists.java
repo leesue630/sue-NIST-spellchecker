@@ -156,9 +156,13 @@ public class WordLists {
                 put("acknowledgeitional","Acknowledge");
 
                 put("activityinformation","Activity information");
+                put("agiven", "a given");
                 put("allternate", "alternate");
+                put("associacted", "associated");
+                put("availble", "available");
 
                 put("buiness", "business");
+                put("buisness", "business");
 
                 put("camcel", "Cancel");
                 put("cancelhronize", "Cancel");
@@ -168,6 +172,7 @@ public class WordLists {
                 put("carrirer", "carrier");
                 put("capabilit", "capability");
                 put("catalogmay", "Catalog may");
+                put("clategorize", "categorize");
 
                 put("chagne", "Change");
                 put("changehronize", "Change");
@@ -177,18 +182,27 @@ public class WordLists {
                 put("choosen", "chosen");
                 put("codelist", "code list");
                 put("commerical", "commercial");
+                put("consisit", "consist");
                 put("constituient", "constituent");
                 put("consumptn", "consumption");
                 put("cor", "core ");
                 put("corrdinator", "coordinator");
                 put("coresponding", "corresponding");
                 put("daye", "date");
+                put("dpending", "depending");
+                put("Depoecate", "Deprecate");
                 put("depricated", "Deprecated");
+                put("destinated", "destined");
+
                 put("doucment", "document");
                 put("documet", "document");
+                put("docment", "document");
+
+                put("dutation", "duration");
                 put("duratation", "Duration");
                 put("eiher", "either");
                 put("elments", "elements");
+                put("esitmated", "estimated");
                 put("facitliy", "facility");
                 put("fexibile", "Flexible");
                 put("freeform", "free-form");
@@ -196,9 +210,16 @@ public class WordLists {
                 put("fullfil", "fulfill");
                 put("identifyies", "Identifies");
                 put("idenitifies", "Identifies");
+                put("idenitfies", "Identifies");
+                put("identifing", "identifying");
                 put("indicat", "indicate");
                 put("inidicates", "Indicates");
+
+                put("informatoin", "information");
+                put("informoration", "Information");
                 put("infoi\\rmatoin", "information");
+
+                put("iterms", "Items");
                 put("leadis", "Lead is");
                 put("lline", "Line");
                 put("movemented", "moved");
@@ -207,15 +228,19 @@ public class WordLists {
 
                 put("notifyhronized", "notified");
 
-
+                put("oe", "or");
                 put("opprotunity", "opportunity");
                 put("opportunityis", "Opportunity is");
                 put("occurre", "occurred");
                 put("occurence", "occurrence");
                 put("occurance", "occurrence");
+                put("overriden", "overridden");
                 put("owne", "owner");
+                put("pary", "Party");
+                put("parrent", "parent");
                 put("perferred", "preferred");
                 put("polyons", "polygons");
+                put("preventitive", "preventative");
 
                 put("proces", "Process");
                 put("processhronize", "Process");
@@ -227,8 +252,11 @@ public class WordLists {
                 put("puchase", "Purchase");
                 put("purchaseorder", "Purchase order");
                 put("quatities", "quantities");
+                put("quanity", "quantity");
                 put("receipient", "recipient");
+                put("recieved", "received");
                 put("reoccurrence", "recurrence");
+                put("requestor", "requester");
                 put("responsiblity", "responsibility");
 
                 put("respons", "response");
@@ -250,12 +278,17 @@ public class WordLists {
                 put("simpilify", "simplify");
                 put("subsituted", "substituted");
                 put("superceding", "superseding");
+                put("suppier", "Supplier");
                 put("syn", "Acknowledge, CancelAcknowledge, Cancel, ChangeAcknowledge, Change, Process, Sync, or SyncResponse");
                 put("teardown", "tear down");
                 put("transportaion", "transportation");
+                put("tme", "time");
+
                 put("typiically", "typically");
                 put("tpically", "typically");
+
                 put("uniques", "unique");
+                put("uniquily", "uniquely");
                 put("updats", "update");
                 put("usethis", "use this");
                 put("wher", "where");
