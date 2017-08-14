@@ -6,8 +6,6 @@ import gov.nist.surf2017.sue.Lists.WordLists;
 import gov.nist.surf2017.sue.config.SpellCheckerConfig;
 import gov.nist.surf2017.sue.spellchecker.SpellCheckException;
 import gov.nist.surf2017.sue.spellchecker.SpellChecker;
-import net.sf.extjwnl.data.Word;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.w3c.dom.*;
@@ -469,6 +467,14 @@ public class ParseTokenize {
 //        parser.writeLogfile("Platform\\2_3\\Common\\Components", parser); // DONE
 //        parser.writeLogfile("Platform\\2_3\\Common\\DataTypes", parser); // No spelling mistakes
 //        parser.writeLogfileForSingleFile("Platform\\2_3\\Common\\DataTypes\\XMLSchemaBuiltinType_1_patterns.xsd", parser);
-        parser.writeLogfile("Platform\\2_3\\Common\\IdentifierScheme", parser);
+//        parser.writeLogfile("Platform\\2_3\\Common\\IdentifierScheme", parser);
+//            for (Map.Entry<String, String> entry : WordLists.BOD_ACRONYM_DICTIONARY.entrySet()){
+//                System.out.println(entry.getKey() + ": " + entry.getValue());
+//            }
+        for (String string : WordLists.BOD_ACRONYMS){
+            if (!WordLists.BOD_ACRONYM_DICTIONARY.containsKey(string)){
+                System.out.println(string);
+            }
+        }
     }
 }

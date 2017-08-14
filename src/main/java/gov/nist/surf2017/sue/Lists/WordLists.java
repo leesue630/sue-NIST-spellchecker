@@ -34,7 +34,7 @@ public class WordLists {
             "sri", "lanka", "malagasy", "denar", "rufiyaa", "oro", "nuevo", "st", "tolar",
             "somoni", "anga", "uruguayo", "fuerte", "vatu", "cefact", "uom", "xml"
     );
-    private static final List<String> BOD_ACRONYMS = Arrays.asList(
+    public static final List<String> BOD_ACRONYMS = Arrays.asList(
             // acronyms
             "ABIE","ABTA","AGF","ASC","ASN","AP","AQL",
             "BDEW","BLS","BOD","BOM","BRMA","BSR","BTS","BXA",
@@ -66,76 +66,53 @@ public class WordLists {
             "Interbank","Hong","Interpay","Girale","Ediel","Gesamtverband","Deutschen","Versicherungswirtschaft",
             "Graydon","Creditreform","Kreditversicherungs","Telcom","TELEBIB","Exis","Comite",
             "Ufficio","Systeme","Anwendungen","Produkte","Teikoku","Databank","Logistique","Urbaine",
-            "Hashemite","Bronnoysund","EDIFACT",
+            "Hashemite","Bronnoysund","EDIFACT"
 
-            "Europeenne","Constructeurs","Centrale","l'importation","carburants","et","liquides",
-            "Institut","Statistique","et","Economiques","eingetragener","Verein","Aktiengesellschaft",
-            "responsabile","gestione","partite","und","Geonomenclature",
+//            "Europeenne","Constructeurs","Centrale","l'importation","carburants","et","liquides",
+//            "Institut","Statistique","et","Economiques","eingetragener","Verein","Aktiengesellschaft",
+//            "responsabile","gestione","partite","und","Geonomenclature",
 
-            "Thh","YYYY","hh","DDD",
+//            "Thh","YYYY","hh","DDD",
 
-            "rfc7946",
+//            "rfc7946",
 
-            "BO", // BODs becomes BO when normalized for camel case
-            "OA"  // OAGi becomes OA when normalized for camel case
+//            "BO", // BODs becomes BO when normalized for camel case
+//            "OA"  // OAGi becomes OA when normalized for camel case
     );
 
-    private static final HashMap<String, String> BOD_ACRONYM_DICTIONARY;
+    public static final HashMap<String, String> BOD_ACRONYM_DICTIONARY;
 
     static {
         BOD_ACRONYM_DICTIONARY = new HashMap<String, String>() {
             {
                 put("ABIE", "Aggregate Business Information Entity"); //check
                 put("ASN", "Advanced Shipment Notice");
-                put("AP", "");
                 put("BOD", "Business Object Document");
                 put("BOM", "Bill of Materials");
                 put("BSR", "Business Service Request");
                 put("CFA", "Chartered Financial Analyst"); //check
-                put("CFP", "");
                 put("CHK", "Check");
                 put("CMMS", "Computerized Maintenance Management System");
                 put("CNC", "Computer Numerical Control");
                 put("CRM", "Customer Relationship Management");
                 put("CSM", "Component Supplier Management");
-                put("DAAC", "");
                 put("DHL", "Carrier like UPS");
                 put("DISTRIBUTN", "");
-                put("EDI", "");
                 put("ERP", "Enterprise Resource Planning");
-                put("FIIN", "");
-                put("GL", "");
                 put("HRMS", "Human Resource Management System");
                 put("ISBN", "International Standard Book Number");
-                put("ISO", "");
-                put("IST", "");
-                put("JIT", "");
-                put("JSON", "");
                 put("LIMS", "Laboratory Information Management System");
                 put("LTL", "Less Than Truck Load");
-                put("MDA", "");
-                put("MFAG", "");
                 put("MRP", "Material Resource Planning");
-                put("NMFC", "");
                 put("OAGIS", "Open Applications Group Integration Specification");
-                put("ORIGREF", "");
                 put("PDM", "Product Data Management");
-                put("PLSS", "");
-                put("PN", "");
                 put("RFID", "Radio Frequency Identifier");
                 put("RFQ", "Request for Quote");
-                put("RUABIE", "");
-                put("SDR", "");
                 put("SSCC", "Serial Shipping Container Code");
-                put("TBG", "");
                 put("UCC", "Uniform Code Council");
-                put("UML", "");
                 put("UOM", "Unit of Measure");
-                put("URI", "");
-                put("UPC", "");
                 put("VRML", "Virtual Reality Markup Language");
-                put("WIP", "Work-in Progress");
-                put("xsd", "");
+                put("WIP", "Work In Progress");
             }
         };
     }
