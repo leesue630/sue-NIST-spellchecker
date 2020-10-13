@@ -15,7 +15,7 @@
 
 		<spring.framework.version>4.3.9.RELEASE</spring.framework.version>
 		<extjwnl.version>1.9.2</extjwnl.version>
-		<junit.version>4.12</junit.version>
+		<junit.version>4.13.1</junit.version>
 	</properties>
 
 	<dependencies>
